@@ -5,6 +5,7 @@ A basketball score tracking web app built as my **first frontend project**.
 No frameworks. No libraries. Pure HTML, CSS, and JavaScript.
 
 Features include player statistics, foul tracking, quarter management, game logging, and score management with no external frameworks or libraries.
+
 ---
 
 ## 📁 Project Structure
@@ -140,13 +141,21 @@ No frameworks. No npm. No build tools. Open `index.html` directly in a browser.
 
 ## 🚀 How to Run
 
-1. Clone the repo:
+### Option 1 — Download ZIP
+1. Click **Code → Download ZIP**
+2. Extract the ZIP file
+3. Open either `v1-my-version` or `v2-full-version`
+4. Open `index.html` in your browser
+
+### Option 2 — Clone with Git
+
 ```bash
 git clone https://github.com/SyamPavan0506/Basketboard.git
 ```
-2. Open either folder (`v1-my-version` or `v2-full-version`)
-3. Open `index.html` in your browser — that's it
 
+1. Open either `v1-my-version` or `v2-full-version`
+2. Open `index.html` in your browser
+   
 ---
 
 ## 👨‍💻 Author
