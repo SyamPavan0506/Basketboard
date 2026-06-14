@@ -1,1 +1,94 @@
-<!-- temp -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Basketball Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- SETUP -->
+<div class="setup-container" id="setupScreen">
+    <div class="setup-box">
+        <h2>🏀 Game Setup</h2>
+
+        <input type="number" id="quarters" value="4" placeholder="Quarters">
+        <input type="number" id="minutes" value="10" placeholder="Minutes">
+
+        <h4>Team A</h4>
+        <input type="text" id="teamAInput" placeholder="Rahul, Arjun">
+
+        <h4>Team B</h4>
+        <input type="text" id="teamBInput" placeholder="Ravi, Kiran">
+
+        <button id="startGame">Start Game</button>
+    </div>
+</div>
+
+<!-- GAME -->
+<div class="game-container" id="gameScreen" style="display:none;">
+
+    <!-- SCOREBOARD -->
+    <div class="top-bar">
+
+        <div class="team">
+            <h3>Team A</h3>
+            <div class="score" id="scoreA">0</div>
+            <div>Fouls (Q): <span id="foulA">0</span></div>
+            <div id="bonusA" class="bonus">BONUS</div>
+
+            <div class="buttons">
+                <button onclick="addScore('A',1)">+1</button>
+                <button onclick="addScore('A',2)">+2</button>
+                <button onclick="addScore('A',3)">+3</button>
+                <button onclick="addFoul('A')">Foul</button>
+            </div>
+        </div>
+
+        <div class="center">
+            <h2 id="quarter">Q1</h2>
+            <div id="timer">10:00</div>
+
+            <button onclick="pauseGame()">Pause</button>
+            <button onclick="resumeGame()">Resume</button>
+        </div>
+
+        <div class="team">
+            <h3>Team B</h3>
+            <div class="score" id="scoreB">0</div>
+            <div>Fouls (Q): <span id="foulB">0</span></div>
+            <div id="bonusB" class="bonus">BONUS</div>
+
+            <div class="buttons">
+                <button onclick="addScore('B',1)">+1</button>
+                <button onclick="addScore('B',2)">+2</button>
+                <button onclick="addScore('B',3)">+3</button>
+                <button onclick="addFoul('B')">Foul</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="timeline" id="timeline"></div>
+
+    <!-- PLAYERS -->
+    <div class="players-section">
+
+        <div class="team-players">
+            <h4>Team A Players</h4>
+            <div id="teamAPlayers"></div>
+        </div>
+
+        <div class="team-players">
+            <h4>Team B Players</h4>
+            <div id="teamBPlayers"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
