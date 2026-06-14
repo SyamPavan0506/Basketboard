@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BasketBoard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SETUP PAGE
+     This is what the user sees first before the game.
+     They fill in team names, quarter time, and players.
+══════════════════════════════════════════════ -->
+<div id="setup-page">
+  <div class="setup-logo">🏀 BasketBoard</div>
+  <div class="setup-tagline">Basketball Score Tracker</div>
+
+  <!-- CARD 1: Game Settings -->
+  <div class="setup-card">
+    <h2><span>1</span> Game Settings</h2>
+    <div class="form-row triple">
+
+      <div class="form-group">
+        <label>Quarter Duration</label>
+        <select id="setup-qtr-time">
+          <option value="480">8 min — Youth</option>
+          <option value="600">10 min — FIBA</option>
+          <option value="720" selected>12 min — NBA</option>
+          <option value="custom">Custom…</option>
+        </select>
+      </div>
+
+      <!-- Custom minutes input, hidden by default -->
+      <div class="form-group" id="custom-time-group" style="display:none">
+        <label>Custom Minutes (1–60)</label>
+        <input type="number" id="setup-custom-minutes" placeholder="e.g. 15" min="1" max="60" />
+      </div>
+
+      <div class="form-group">
+        <label>Home Team Name</label>
+        <input type="text" id="setup-name-a" placeholder="e.g. Lakers" maxlength="14" />
+      </div>
+
+      <div class="form-group">
+        <label>Away Team Name</label>
+        <input type="text" id="setup-name-b" placeholder="e.g. Celtics" maxlength="14" />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CARD 2: Players -->
+  <div class="setup-card">
+    <h2><span>2</span> Add Players (Optional)</h2>
+
+    <div class="teams-grid">
+      <!-- Home players -->
+      <div class="team-setup-col home">
+        <h3 id="setup-col-title-a">Home Team</h3>
+        <div id="setup-players-a"></div>
+        <button class="btn-add-row" onclick="addSetupRow('a')">+ Add Player</button>
+      </div>
+      <!-- Away players -->
+      <div class="team-setup-col away">
+        <h3 id="setup-col-title-b">Away Team</h3>
+        <div id="setup-players-b"></div>
+        <button class="btn-add-row" onclick="addSetupRow('b')">+ Add Player</button>
+      </div>
+    </div>
+
+    <!-- Option to skip players entirely -->
+    <label class="no-players-toggle">
+      <input type="checkbox" id="skip-players-check" onchange="toggleSkipPlayers()" />
+      <span>Skip player setup — track team scores and fouls only</span>
+    </label>
+  </div>
+
+  <button class="setup-start-btn" onclick="startGame()">Start Game ▶</button>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     GAME PAGE
+     Main tracker. Hidden until user clicks Start Game.
+══════════════════════════════════════════════ -->
+<div id="game-page">
+
+  <!-- Top header bar -->
+  <header>
+    <div class="header-logo">🏀 BasketBoard</div>
+    <div class="header-controls">
+      <button class="btn-outline" id="btn-reset">Reset Game</button>
+      <button class="btn-primary" id="btn-end-game">End Game</button>
+    </div>
+  </header>
+
+  <!-- Quarter + Timer bar -->
+  <div class="game-meta">
+    <div class="quarter-display">Quarter <span id="qtr-label">1</span></div>
+    <div id="timer" class="timer paused">12:00</div>
+    <div class="timer-controls">
+      <button class="btn-icon" id="btn-play-pause">▶</button>
+      <button class="btn-icon" id="btn-reset-timer" title="Reset Timer">↺</button>
+    </div>
+  </div>
+
+  <!-- 3-column grid: Team A | Center | Team B -->
+  <div class="main-area">
+
+    <!-- ── TEAM A PANEL ── -->
+    <div class="team-panel">
+      <div class="team-header">
+        <div class="team-label" id="label-a">HOME</div>
+        <div id="bonus-a" class="bonus-badge">🔥 BONUS</div>
+      </div>
+
+      <div class="score-section">
+        <div class="team-score" id="score-a">0</div>
+        <div class="score-buttons">
+          <!-- Each button opens the scoring modal with that many points -->
+          <button class="btn-point" onclick="openScoreModal('a', 1)">+1</button>
+          <button class="btn-point" onclick="openScoreModal('a', 2)">+2</button>
+          <button class="btn-point" onclick="openScoreModal('a', 3)">+3</button>
+        </div>
+        <div style="margin-top:10px">
+          <button class="btn-undo" onclick="undoScore('a')">↩ Undo</button>
+        </div>
+      </div>
+
+      <div class="foul-section">
+        <div class="foul-left">
+          <div class="foul-title">Team Fouls (Q<span id="qtr-foul-label-a">1</span>)</div>
+          <div class="foul-dots" id="fdots-a">
+            <div class="foul-dot"></div><div class="foul-dot"></div>
+            <div class="foul-dot"></div><div class="foul-dot"></div>
+            <div class="foul-dot"></div>
+          </div>
+        </div>
+        <div class="foul-right">
+          <div class="foul-count-big" id="fouls-a">0</div>
+          <button class="btn-foul-main" onclick="openFoulModal('a')">+ Foul</button>
+        </div>
+      </div>
+
+      <div class="players-section">
+        <h3>Players</h3>
+        <div class="player-list" id="players-a"></div>
+      </div>
+    </div>
+
+    <!-- ── CENTER SCOREBOARD ── -->
+    <div class="center-panel">
+      <div class="scoreboard-card">
+        <div class="scoreboard-title">BasketBoard</div>
+        <div class="team-name-row">
+          <span class="name-a" id="ctr-name-a">HOME</span>
+          <span class="name-b" id="ctr-name-b">AWAY</span>
+        </div>
+        <div class="center-scores">
+          <div class="center-score-a" id="ctr-a">0</div>
+          <div class="center-dash">–</div>
+          <div class="center-score-b" id="ctr-b">0</div>
+        </div>
+        <!-- 4 dots showing current quarter progress -->
+        <div class="quarter-dots" id="qtr-dots">
+          <div class="q-dot current"></div>
+          <div class="q-dot"></div>
+          <div class="q-dot"></div>
+          <div class="q-dot"></div>
+        </div>
+        <div class="quarter-nav">
+          <button class="btn-quarter" onclick="changeQuarter(-1)">◀ Prev</button>
+          <button class="btn-quarter" onclick="changeQuarter(1)">Next ▶</button>
+        </div>
+      </div>
+
+      <!-- Live game log -->
+      <div class="log-card">
+        <h3>Game Log</h3>
+        <div class="log-list" id="game-log"></div>
+      </div>
+    </div>
+
+    <!-- ── TEAM B PANEL ── -->
+    <div class="team-panel">
+      <div class="team-header">
+        <div class="team-label" id="label-b">AWAY</div>
+        <div id="bonus-b" class="bonus-badge">🔥 BONUS</div>
+      </div>
+
+      <div class="score-section">
+        <div class="team-score" id="score-b">0</div>
+        <div class="score-buttons">
+          <button class="btn-point" onclick="openScoreModal('b', 1)">+1</button>
+          <button class="btn-point" onclick="openScoreModal('b', 2)">+2</button>
+          <button class="btn-point" onclick="openScoreModal('b', 3)">+3</button>
+        </div>
+        <div style="margin-top:10px">
+          <button class="btn-undo" onclick="undoScore('b')">↩ Undo</button>
+        </div>
+      </div>
+
+      <div class="foul-section">
+        <div class="foul-left">
+          <div class="foul-title">Team Fouls (Q<span id="qtr-foul-label-b">1</span>)</div>
+          <div class="foul-dots" id="fdots-b">
+            <div class="foul-dot"></div><div class="foul-dot"></div>
+            <div class="foul-dot"></div><div class="foul-dot"></div>
+            <div class="foul-dot"></div>
+          </div>
+        </div>
+        <div class="foul-right">
+          <div class="foul-count-big" id="fouls-b">0</div>
+          <button class="btn-foul-main" onclick="openFoulModal('b')">+ Foul</button>
+        </div>
+      </div>
+
+      <div class="players-section">
+        <h3>Players</h3>
+        <div class="player-list" id="players-b"></div>
+      </div>
+    </div>
+
+  </div><!-- /main-area -->
+
+  <!-- Winner banner — shown when End Game is clicked -->
+  <div class="winner-banner" id="winner-banner">
+    <h2 id="winner-text">Game Over</h2>
+    <p  id="winner-sub">Final Score</p>
+  </div>
+
+  <!-- Player stats tables at the bottom -->
+  <div class="stats-area">
+    <h2>Player Statistics</h2>
+    <div class="stats-grid">
+      <div class="stats-table-card">
+        <div class="stats-table-header"><span id="stats-header-a">HOME — Stats</span></div>
+        <div id="stats-a"><p class="no-players">No players added.</p></div>
+      </div>
+      <div class="stats-table-card">
+        <div class="stats-table-header"><span id="stats-header-b">AWAY — Stats</span></div>
+        <div id="stats-b"><p class="no-players">No players added.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /game-page -->
+
+
+<!-- ══════════════════════════════════════════════
+     SCORING MODAL
+     Opens when +1, +2, or +3 is clicked.
+     Asks: Team Score (no player) OR which player scored.
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="score-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeScoreModal()">✕</button>
+    <h2 id="score-modal-title">Who Scored?</h2>
+
+    <!-- Step 1: Team score or pick player -->
+    <div id="score-step1">
+      <div class="foul-type-btns">
+        <button class="btn-foul-type" onclick="confirmTeamScore()">
+          <span class="foul-icon">🏀</span>
+          <span class="foul-label">Team Score</span>
+          <span class="foul-desc">No specific player</span>
+        </button>
+        <button class="btn-foul-type" id="btn-pick-scorer" onclick="showScorerList()">
+          <span class="foul-icon">🙋</span>
+          <span class="foul-label">Player Scored</span>
+          <span class="foul-desc">Select the player</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Player list -->
+    <div id="score-step2" style="display:none">
+      <button class="modal-back-btn" onclick="backToScoreStep1()">← Back</button>
+      <p class="modal-subtitle" style="margin-top:10px">Select the player who scored:</p>
+      <div class="modal-player-list" id="score-player-list"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     FOUL MODAL
+     Opens when + Foul is clicked.
+     Asks: Team Foul OR Personal Foul (then picks player).
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="foul-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeFoulModal()">✕</button>
+    <h2 id="foul-modal-title">Record Foul</h2>
+
+    <!-- Step 1: Foul type -->
+    <div id="foul-step1">
+      <div class="foul-type-btns">
+        <button class="btn-foul-type" onclick="selectFoulType('team')">
+          <span class="foul-icon">🏀</span>
+          <span class="foul-label">Team Foul</span>
+          <span class="foul-desc">General infraction</span>
+        </button>
+        <button class="btn-foul-type" id="btn-personal-foul" onclick="selectFoulType('personal')">
+          <span class="foul-icon">🙋</span>
+          <span class="foul-label">Personal Foul</span>
+          <span class="foul-desc">Select player</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: Player picker -->
+    <div id="foul-step2" style="display:none">
+      <button class="modal-back-btn" onclick="backToFoulStep1()">← Back</button>
+      <p class="modal-subtitle" style="margin-top:10px">Select the player who committed the foul:</p>
+      <div class="modal-player-list" id="foul-player-list"></div>
+    </div>
+
+    <!-- Bonus warning if already in bonus -->
+    <div class="free-throw-notice" id="free-throw-notice" style="display:none">
+      ⚠️ Already in BONUS — Opposing team is awarded <strong>2 Free Throws</strong>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
